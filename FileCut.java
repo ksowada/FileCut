@@ -42,38 +42,38 @@ public class FileCut {
         }
         String pattern = args[3];
         if (mode!=0) {
-	        try
-	        {
-	
+	        try {
 	            File afile = new File(args[0]);
 	            File bfile = new File(args[1]);
 	
 	            inStream = new FileInputStream(afile);
 	            outStream = new FileOutputStream(bfile);
 	
-	            //byte[] buffer = new byte[BUFFER_LEN];
-	            
-	            byte[] patBuf = new BufferByte(pattern.length());
-	            		
-	            //ByteBuffer patBuf = new ByteBuffer
-	            		
-	            int length;
+	            BufferByte patBuf = new BufferByte(pattern.length());
+
+	            int charRead;
+	            boolean writeFlag = false;
 	            // copy the file content in bytes
-	            while ((length = inStream.read(buffer)) > 0)
+	            while ((charRead = inStream.read()) > 0)
 	            {
+	            	patBuf.push((byte)charRead);
 	            	
-	                outStream.write(buffer, 0, length);
-	
-	            }
-	
+	            	if (patBuf.toString().equals(pattern)) {
+	            		writeFlag = true;
+	            		
+	            		// write content of Buffer to file
+	            		outStream.write(patBuf.toBytes());
+	            	} else { // use else to not write when written buffer due to char duplication
+	            		if (writeFlag) {
+	            			outStream.write(charRead);
+	            		}
+	            	}
+	            }	
 	            inStream.close();
-	            outStream.close();
-	
+	            outStream.close();	
 	            System.out.println("File is copied successful!");
-	
 	        }
-	        catch (IOException e)
-	        {
+	        catch (IOException e) {
 	            e.printStackTrace();
 	        }
         } else {
@@ -85,29 +85,35 @@ public class FileCut {
 }
 class BufferByte {
 	
-	char[] buffer;
+	byte[] buffer;
 	int pos = 0;
-	int len = 0;
+	int max = 0;
 	
 	public BufferByte(int len) {
-		buffer = new char[len];
-		this.len = len;
+		buffer = new byte[len];
+		this.max = len-1;
 	}
 	
-	public void push(char c) {
-		if (pos < len - 1) {
-			pos++;
+	public void push(byte c) {
+		System.out.println(toString()+" pos"+pos+" max"+max+" c"+c);
+		if (pos < max) {
 			buffer[pos] = c;
+			pos++;
 		} else {
-			for (int i=0; i<len-2) {
+			for (int i=0; i<max; i++) {
 				buffer[i] = buffer[i+1];
 			}
 			buffer[pos] = c;
 		}
+		
 	}
 	
 	public String toString() {
 		return new String(buffer);
+	}
+	
+	public byte[] toBytes() {
+		return buffer;
 	}
 	
 }
