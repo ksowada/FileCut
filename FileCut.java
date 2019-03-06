@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer; 
 
 public class FileCut {
 	
@@ -50,10 +51,12 @@ public class FileCut {
 	            inStream = new FileInputStream(afile);
 	            outStream = new FileOutputStream(bfile);
 	
-	            byte[] buffer = new byte[BUFFER_LEN];
+	            //byte[] buffer = new byte[BUFFER_LEN];
 	            
-	            byte[] patBuf = new byte[pattern.length()]
-	
+	            byte[] patBuf = new BufferByte(pattern.length());
+	            		
+	            //ByteBuffer patBuf = new ByteBuffer
+	            		
 	            int length;
 	            // copy the file content in bytes
 	            while ((length = inStream.read(buffer)) > 0)
@@ -79,4 +82,32 @@ public class FileCut {
 
 	}
 
+}
+class BufferByte {
+	
+	char[] buffer;
+	int pos = 0;
+	int len = 0;
+	
+	public BufferByte(int len) {
+		buffer = new char[len];
+		this.len = len;
+	}
+	
+	public void push(char c) {
+		if (pos < len - 1) {
+			pos++;
+			buffer[pos] = c;
+		} else {
+			for (int i=0; i<len-2) {
+				buffer[i] = buffer[i+1];
+			}
+			buffer[pos] = c;
+		}
+	}
+	
+	public String toString() {
+		return new String(buffer);
+	}
+	
 }
